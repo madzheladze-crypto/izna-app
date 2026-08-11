@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Изнанка</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #faf1e0;
+    --surface: #ffffff;
+    --surface-2: #f4e8cd;
+    --ink: #2b2833;
+    --ink-dim: #948d9c;
+    --gold: #eed9a3;
+    --blue: #b3ddec;
+    --pair: #f6c9bf;
+    --friends: #bfe6d6;
+    --family: #b3ddec;
+    --work: #eed9a3;
+    --radius: 22px;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    margin:0; padding:0; height:100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overscroll-behavior: none;
+    position: relative;
+  }
+
+  body::before, body::after{
+    content:"";
+    position: fixed;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    filter: blur(10px);
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+  }
+  body::before{
+    background: var(--blue);
+    top: -90px; left: -90px;
+  }
+  body::after{
+    background: var(--gold);
+    bottom: -100px; right: -110px;
+  }
+
+  #app{
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display:flex;
+    flex-direction: column;
+  }
+
+  .screen{ display:none; flex:1; flex-direction: column; padding: 20px 20px 28px; }
+  .screen.active{ display:flex; }
+
+  /* ---------- HOME ---------- */
+  .home-header{
+    padding: 18px 4px 8px;
+  }
+  .eyebrow{
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 700;
+    background: var(--blue);
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .home-title{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 29px;
+    line-height: 1.28;
+    margin: 12px 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .home-title .hl{
+    background: var(--gold);
+    padding: 0 8px;
+    border-radius: 8px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .home-sub{
+    color: var(--ink-dim);
+    font-size: 14.5px;
+    line-height: 1.5;
+    max-width: 34ch;
+  }
+
+  .topics{
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .topic-card{
+    position: relative;
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    background: var(--surface);
+    border: 1.5px solid rgba(43,40,51,0.08);
+    box-shadow: 0 10px 24px -10px rgba(43,40,51,0.18);
+    overflow: hidden;
+    text-align: left;
+    cursor: pointer;
+    min-height: 128px;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .topic-card:active{
+    transform: translate(3px, 3px);
+    box-shadow: 0 4px 12px -6px rgba(43,40,51,0.18);
+  }
+  .topic-card::before{
+    content:"";
+    position:absolute; top:-30px; right:-30px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.22;
+  }
+  .topic-icon{
+    font-size: 24px;
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: var(--accent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .topic-name{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.3;
+    margin-top: 12px;
+  }
+  .topic-count{
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+
+  .topic-card[data-topic="pair"]{ --accent: var(--pair); }
+  .topic-card[data-topic="friends"]{ --accent: var(--friends); }
+  .topic-card[data-topic="family"]{ --accent: var(--family); }
+  .topic-card[data-topic="work"]{ --accent: var(--work); }
+
+  .footnote{
+    margin-top: auto;
+    padding-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+
+  /* ---------- DECK ---------- */
+  .deck-top{
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 2px 4px;
+  }
+  .back-btn{
+    background: none; border: none; color: var(--ink-dim);
+    font-size: 14px; font-family: 'Inter', sans-serif;
+    display:flex; align-items:center; gap:6px;
+    padding: 8px 4px;
+    cursor:pointer;
+  }
+  .deck-label{
+    font-size: 13px; font-weight:600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  .progress-row{
+    display:flex; align-items:center; gap:4px;
+    margin: 14px 2px 0;
+  }
+  .progress-dot{
+    height: 6px; flex:1; border-radius: 3px;
+    background: var(--surface-2);
+    overflow:hidden;
+  }
+  .progress-dot .fill{
+    height:100%; width:0%;
+    background: var(--accent);
+    transition: width .25s ease;
+  }
+
+  .card-wrap{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 18px 0;
+    perspective: 1200px;
+  }
+
+  .q-card{
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    min-height: 300px;
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 36px 28px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1.5px solid rgba(43,40,51,0.08);
+    box-shadow: 0 20px 44px -16px rgba(43,40,51,0.22);
+    transition: transform .28s ease, opacity .28s ease;
+  }
+  .q-card::after{
+    content:"";
+    position:absolute; top:22px; right:24px;
+    width: 34px; height:34px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .q-card.turning{ transform: rotateY(8deg) scale(0.98); opacity: 0.4; }
+
+  .q-index{
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .q-text{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 500;
+    font-size: 19px;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    padding-right: 40px;
+  }
+
+  .deck-actions{
+    display:flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .btn{
+    flex:1;
+    border: none;
+    border-radius: 16px;
+    padding: 15px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform: translate(2px, 2px); box-shadow: none !important; }
+  .btn-primary{
+    background: var(--accent);
+    color: var(--ink);
+    box-shadow: 0 8px 18px -8px rgba(43,40,51,0.28);
+  }
+  .btn-ghost{
+    background: var(--surface);
+    color: var(--ink);
+    flex: 0 0 52px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 18px;
+    box-shadow: 0 6px 14px -8px rgba(43,40,51,0.16);
+  }
+
+  .end-msg{
+    text-align:center;
+    padding: 10px 6px 0;
+    color: var(--ink-dim);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ====== HOME SCREEN ====== -->
+  <div class="screen active" id="screen-home">
+    <div class="home-header">
+      <div class="eyebrow">Изнанка</div>
+      <div class="home-title">Загляни <span class="hl">глубже</span><br>друг в друга</div>
+      <div class="home-sub">Выбери направление — и продолжайте разговор карточка за карточкой.</div>
+    </div>
+
+    <div class="topics" id="topics-grid"></div>
+
+    <div class="footnote">Новые темы и вопросы добавляются&nbsp;постепенно</div>
+  </div>
+
+  <!-- ====== DECK SCREEN ====== -->
+  <div class="screen" id="screen-deck">
+    <div class="deck-top">
+      <button class="back-btn" id="btn-back">← Темы</button>
+      <div class="deck-label" id="deck-label"></div>
+    </div>
+
+    <div class="progress-row" id="progress-row"></div>
+
+    <div class="card-wrap">
+      <div class="q-card" id="q-card">
+        <div class="q-index" id="q-index"></div>
+        <div class="q-text" id="q-text"></div>
+      </div>
+    </div>
+
+    <div class="deck-actions">
+      <button class="btn btn-ghost" id="btn-shuffle" title="Перемешать">⤮</button>
+      <button class="btn btn-primary" id="btn-next">Следующий вопрос</button>
+    </div>
+    <div class="end-msg" id="end-msg" style="display:none;">Вопросы в этой теме закончились — можно перемешать и пройти ещё раз</div>
+  </div>
+
+</div>
+
+<script>
+/* ======================================================
+   ДАННЫЕ. Добавляй свои вопросы прямо сюда, в массив нужной темы.
+   ====================================================== */
+const TOPICS = {
+  pair: {
+    name: "Пара",
+    icon: "❤️",
+    accent: "var(--pair)",
+    questions: [
+      "Какой момент за последний месяц ты хотел(а) бы прожить ещё раз вместе со мной?",
+      "Что я делаю такого, за что ты мне благодарен(на), но редко говоришь об этом?",
+      "Как ты понимаешь, что тебе сейчас нужна поддержка, а не совет?",
+      "Каким ты видишь нас через 5 лет?",
+      "Что для тебя значит быть услышанным(ой) в отношениях?",
+      "Была ли неделя, когда ты чувствовал(а) себя особенно близко ко мне? Почему?",
+      "Что из моих привычек тебе особенно нравится?",
+      "Какую мечту ты пока не рассказывал(а) мне?",
+    ]
+  },
+  friends: {
+    name: "Друзья",
+    icon: "✦",
+    accent: "var(--friends)",
+    questions: [
+      "Какое наше совместное воспоминание ты вспоминаешь чаще всего?",
+      "Что в дружбе для тебя важнее всего: поддержка, честность или веселье?",
+      "Есть ли что-то, чему ты научился(ась) у меня?",
+      "Какой была бы наша идеальная совместная поездка?",
+      "Что заставляет тебя чувствовать, что дружба настоящая?",
+      "О чём ты давно хотел(а) меня спросить, но не решался(ась)?",
+      "Какая черта характера друга для тебя самая ценная?",
+      "Если бы мы начали новую традицию вдвоём — какую?",
+    ]
+  },
+  family: {
+    name: "Семья",
+    icon: "⌂",
+    accent: "var(--family)",
+    questions: [
+      "Какая семейная традиция для тебя самая важная?",
+      "Что ты хотел(а) бы передать следующему поколению семьи?",
+      "Какое воспоминание детства ты вспоминаешь с особенной теплотой?",
+      "Что тебя сейчас беспокоит, о чём мы редко говорим?",
+      "Чем ты гордишься в нашей семье?",
+      "Какой урок ты вынес(ла) из трудного периода в семье?",
+      "Что бы ты хотел(а) изменить в том, как мы проводим время вместе?",
+      "Какая черта у кого-то из семьи тебе особенно дорога?",
+    ]
+  },
+  work: {
+    name: "Работа",
+    icon: "◆",
+    accent: "var(--work)",
+    questions: [
+      "Что в текущем проекте тебе даётся легко, а что — тяжело?",
+      "Какая обратная связь от команды была для тебя самой полезной?",
+      "Что тебе нужно от коллег, чтобы работать в полную силу?",
+      "Какой момент за последний месяц был для тебя маленькой победой?",
+      "Что бы ты изменил(а) в том, как мы общаемся в команде?",
+      "Какая задача сейчас вызывает больше всего сомнений?",
+      "Чему ты научился(ась) за последний рабочий квартал?",
+      "Что тебя мотивирует в этой работе сильнее всего?",
+    ]
+  }
+};
+
+/* ====================================================== */
+
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor?.('#fff6e2');
+  tg.setBackgroundColor?.('#fff6e2');
+}
+
+const homeScreen = document.getElementById('screen-home');
+const deckScreen = document.getElementById('screen-deck');
+const topicsGrid = document.getElementById('topics-grid');
+const deckLabel = document.getElementById('deck-label');
+const progressRow = document.getElementById('progress-row');
+const qCard = document.getElementById('q-card');
+const qIndex = document.getElementById('q-index');
+const qText = document.getElementById('q-text');
+const btnNext = document.getElementById('btn-next');
+const btnShuffle = document.getElementById('btn-shuffle');
+const btnBack = document.getElementById('btn-back');
+const endMsg = document.getElementById('end-msg');
+
+let currentTopicKey = null;
+let currentOrder = [];
+let currentIndex = 0;
+
+function renderTopics(){
+  topicsGrid.innerHTML = '';
+  Object.entries(TOPICS).forEach(([key, t]) => {
+    const el = document.createElement('button');
+    el.className = 'topic-card';
+    el.dataset.topic = key;
+    el.innerHTML = `
+      <div class="topic-icon">${t.icon}</div>
+      <div>
+        <div class="topic-name">${t.name}</div>
+        <div class="topic-count">${t.questions.length} вопросов</div>
+      </div>
+    `;
+    el.addEventListener('click', () => openTopic(key));
+    topicsGrid.appendChild(el);
+  });
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function openTopic(key){
+  currentTopicKey = key;
+  currentOrder = shuffle(TOPICS[key].questions.map((_, i) => i));
+  currentIndex = 0;
+
+  const t = TOPICS[key];
+  document.documentElement.style.setProperty('--accent-runtime', t.accent);
+  deckScreen.style.setProperty('--accent', t.accent);
+  deckLabel.textContent = t.name;
+  deckLabel.style.color = t.accent;
+
+  buildProgress();
+  showQuestion();
+
+  homeScreen.classList.remove('active');
+  deckScreen.classList.add('active');
+  tg?.HapticFeedback?.impactOccurred('light');
+}
+
+function buildProgress(){
+  progressRow.innerHTML = '';
+  currentOrder.forEach(() => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    dot.innerHTML = '<div class="fill"></div>';
+    progressRow.appendChild(dot);
+  });
+}
+
+function updateProgress(){
+  const dots = progressRow.querySelectorAll('.progress-dot .fill');
+  dots.forEach((d, i) => {
+    d.style.width = i < currentIndex ? '100%' : (i === currentIndex ? '100%' : '0%');
+  });
+}
+
+function showQuestion(){
+  const t = TOPICS[currentTopicKey];
+  const done = currentIndex >= currentOrder.length;
+
+  if (done) {
+    qIndex.textContent = 'Готово';
+    qText.textContent = 'Вопросы закончились — перемешай колоду и продолжайте разговор.';
+    endMsg.style.display = 'block';
+    btnNext.textContent = 'Начать заново';
+  } else {
+    const qi = currentOrder[currentIndex];
+    qIndex.textContent = `Вопрос ${currentIndex + 1} из ${currentOrder.length}`;
+    qText.textContent = t.questions[qi];
+    endMsg.style.display = 'none';
+    btnNext.textContent = 'Следующий вопрос';
+  }
+  updateProgress();
+}
+
+function nextQuestion(){
+  qCard.classList.add('turning');
+  tg?.HapticFeedback?.selectionChanged();
+  setTimeout(() => {
+    if (currentIndex >= currentOrder.length) {
+      currentOrder = shuffle(currentOrder);
+      currentIndex = 0;
+      buildProgress();
+    } else {
+      currentIndex++;
+    }
+    showQuestion();
+    qCard.classList.remove('turning');
+  }, 140);
+}
+
+btnNext.addEventListener('click', nextQuestion);
+
+btnShuffle.addEventListener('click', () => {
+  currentOrder = shuffle(currentOrder);
+  currentIndex = 0;
+  buildProgress();
+  showQuestion();
+  tg?.HapticFeedback?.impactOccurred('medium');
+});
+
+btnBack.addEventListener('click', () => {
+  deckScreen.classList.remove('active');
+  homeScreen.classList.add('active');
+});
+
+renderTopics();
+</script>
+</body>
+</html>
