@@ -6,21 +6,22 @@
 <title>Изнанка</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
   :root{
-    --bg: #faf1e0;
+    --bg: #fff8ee;
     --surface: #ffffff;
-    --surface-2: #f4e8cd;
-    --ink: #2b2833;
-    --ink-dim: #948d9c;
-    --gold: #eed9a3;
-    --blue: #b3ddec;
-    --pair: #f6c9bf;
-    --friends: #bfe6d6;
-    --family: #b3ddec;
-    --work: #eed9a3;
-    --radius: 22px;
+    --surface-2: #fff1da;
+    --ink: #221c33;
+    --ink-dim: #8a80a0;
+    --sun: #ffc93c;
+    --sun-deep: #ffb020;
+    --pair: #ff6b81;
+    --friends: #1fc9a8;
+    --group: #9b6bff;
+    --family: #3ec1ec;
+    --work: #ffb020;
+    --radius: 24px;
   }
 
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -34,23 +35,30 @@
     position: relative;
   }
 
-  body::before, body::after{
+  body::before, body::after, body .blob-3{
     content:"";
     position: fixed;
-    width: 260px; height: 260px;
     border-radius: 50%;
-    filter: blur(10px);
-    opacity: 0.35;
+    filter: blur(6px);
+    opacity: 0.45;
     z-index: 0;
     pointer-events: none;
   }
   body::before{
-    background: var(--blue);
-    top: -90px; left: -90px;
+    width: 300px; height: 300px;
+    background: var(--family);
+    top: -110px; left: -110px;
   }
   body::after{
-    background: var(--gold);
-    bottom: -100px; right: -110px;
+    width: 320px; height: 320px;
+    background: var(--sun);
+    bottom: -130px; right: -120px;
+  }
+  .blob-3{
+    width: 200px; height: 200px;
+    background: var(--group);
+    top: 40%; right: -90px;
+    opacity: 0.28;
   }
 
   #app{
@@ -61,12 +69,33 @@
     flex-direction: column;
   }
 
-  .screen{ display:none; flex:1; flex-direction: column; padding: 20px 20px 28px; }
+  .screen{ display:none; flex:1; flex-direction: column; padding: 18px 18px 26px; }
   .screen.active{ display:flex; }
 
-  /* ---------- HOME ---------- */
-  .home-header{
-    padding: 18px 4px 8px;
+  /* ---------- STATS PILL ---------- */
+  .stats-bar{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .stat-chip{
+    display:flex;
+    align-items:center;
+    gap: 5px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    padding: 6px 12px 6px 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    box-shadow: 3px 3px 0 rgba(34,28,51,0.9);
+  }
+  .stat-chip .emoji{ font-size: 15px; }
+
+  /* ---------- HEADER (shared) ---------- */
+  .screen-header{
+    padding: 14px 2px 6px;
   }
   .eyebrow{
     display: inline-block;
@@ -74,134 +103,158 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink);
-    font-weight: 700;
-    background: var(--blue);
-    padding: 4px 12px;
+    font-weight: 800;
+    background: var(--sun);
+    padding: 5px 13px;
     border-radius: 999px;
+    border: 2px solid var(--ink);
   }
-  .home-title{
+  .screen-title{
     font-family: 'Unbounded', sans-serif;
     font-weight: 700;
-    font-size: 29px;
-    line-height: 1.28;
-    margin: 12px 0 6px;
+    font-size: 27px;
+    line-height: 1.26;
+    margin: 13px 0 6px;
     letter-spacing: -0.01em;
   }
-  .home-title .hl{
-    background: var(--gold);
-    padding: 0 8px;
-    border-radius: 8px;
+  .screen-title .hl{
+    background: var(--pair);
+    color: #fff;
+    padding: 0 9px;
+    border-radius: 9px;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
   }
-  .home-sub{
+  .screen-sub{
     color: var(--ink-dim);
     font-size: 14.5px;
     line-height: 1.5;
-    max-width: 34ch;
-  }
-
-  .topics{
-    margin-top: 22px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  .topic-card{
-    position: relative;
-    border-radius: var(--radius);
-    padding: 18px 16px;
-    background: var(--surface);
-    border: 1.5px solid rgba(43,40,51,0.08);
-    box-shadow: 0 10px 24px -10px rgba(43,40,51,0.18);
-    overflow: hidden;
-    text-align: left;
-    cursor: pointer;
-    min-height: 128px;
-    display:flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform .12s ease, box-shadow .12s ease;
-  }
-  .topic-card:active{
-    transform: translate(3px, 3px);
-    box-shadow: 0 4px 12px -6px rgba(43,40,51,0.18);
-  }
-  .topic-card::before{
-    content:"";
-    position:absolute; top:-30px; right:-30px;
-    width: 90px; height: 90px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0.22;
-  }
-  .topic-icon{
-    font-size: 24px;
-    width: 42px; height: 42px;
-    border-radius: 12px;
-    background: var(--accent);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .topic-name{
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 1.3;
-    margin-top: 12px;
-  }
-  .topic-count{
-    font-size: 12px;
-    color: var(--ink-dim);
-    margin-top: 2px;
+    max-width: 36ch;
     font-weight: 500;
   }
 
-  .topic-card[data-topic="pair"]{ --accent: var(--pair); }
-  .topic-card[data-topic="friends"]{ --accent: var(--friends); }
-  .topic-card[data-topic="family"]{ --accent: var(--family); }
-  .topic-card[data-topic="work"]{ --accent: var(--work); }
+  /* ---------- CARD GRID (context + category) ---------- */
+  .card-grid{
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+  }
+  .card-grid.single-col{
+    grid-template-columns: 1fr;
+  }
+
+  .pick-card{
+    position: relative;
+    border-radius: var(--radius);
+    padding: 17px 15px;
+    background: var(--surface);
+    border: 2.5px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--accent);
+    overflow: hidden;
+    text-align: left;
+    cursor: pointer;
+    min-height: 118px;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform .1s ease, box-shadow .1s ease;
+  }
+  .pick-card:active{
+    transform: translate(4px, 4px);
+    box-shadow: 1px 1px 0 var(--accent);
+  }
+  .pick-icon{
+    font-size: 21px;
+    width: 40px; height: 40px;
+    border-radius: 13px;
+    background: var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    border: 2px solid var(--ink);
+  }
+  .pick-name{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+    line-height: 1.28;
+    margin-top: 11px;
+  }
+  .pick-desc{
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 3px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .pick-progress{
+    margin-top: 8px;
+    height: 6px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .pick-progress .fill{
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+  }
 
   .footnote{
     margin-top: auto;
-    padding-top: 24px;
+    padding-top: 20px;
     text-align: center;
     font-size: 12px;
     color: var(--ink-dim);
+    font-weight: 500;
   }
 
-  /* ---------- DECK ---------- */
+  /* ---------- SHARED TOP BAR ---------- */
   .deck-top{
     display:flex;
     align-items: center;
     justify-content: space-between;
-    padding: 4px 2px 4px;
+    padding: 2px 2px 4px;
   }
   .back-btn{
-    background: none; border: none; color: var(--ink-dim);
-    font-size: 14px; font-family: 'Inter', sans-serif;
+    background: var(--surface); border: 2px solid var(--ink); color: var(--ink);
+    font-size: 13px; font-family: 'Inter', sans-serif; font-weight:700;
     display:flex; align-items:center; gap:6px;
-    padding: 8px 4px;
+    padding: 7px 12px;
+    border-radius: 999px;
     cursor:pointer;
+    box-shadow: 2.5px 2.5px 0 rgba(34,28,51,0.9);
   }
+  .back-btn:active{ transform: translate(2px,2px); box-shadow:none; }
   .deck-label{
-    font-size: 13px; font-weight:600; color: var(--accent);
-    text-transform: uppercase; letter-spacing: 0.08em;
+    font-size: 12.5px; font-weight:800; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    text-align: right;
   }
 
-  .progress-row{
-    display:flex; align-items:center; gap:4px;
+  /* ---------- DECK ---------- */
+  .progress-wrap{
     margin: 14px 2px 0;
   }
-  .progress-dot{
-    height: 6px; flex:1; border-radius: 3px;
-    background: var(--surface-2);
-    overflow:hidden;
+  .progress-track{
+    height: 10px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 2px solid var(--ink);
+    overflow: hidden;
   }
-  .progress-dot .fill{
-    height:100%; width:0%;
+  .progress-track .fill{
+    height: 100%;
     background: var(--accent);
-    transition: width .25s ease;
+    border-radius: 4px;
+    transition: width .3s ease;
+  }
+  .progress-caption{
+    display:flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink-dim);
+    margin-top: 6px;
   }
 
   .card-wrap{
@@ -209,7 +262,7 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    padding: 18px 0;
+    padding: 16px 0;
     perspective: 1200px;
   }
 
@@ -219,28 +272,29 @@
     max-width: 480px;
     min-height: 300px;
     background: var(--surface);
-    border-radius: 28px;
+    border-radius: 30px;
     padding: 36px 28px;
     display:flex;
     flex-direction: column;
     justify-content: center;
-    border: 1.5px solid rgba(43,40,51,0.08);
-    box-shadow: 0 20px 44px -16px rgba(43,40,51,0.22);
-    transition: transform .28s ease, opacity .28s ease;
+    border: 3px solid var(--ink);
+    box-shadow: 8px 8px 0 var(--accent);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), opacity .22s ease;
   }
   .q-card::after{
     content:"";
-    position:absolute; top:22px; right:24px;
-    width: 34px; height:34px;
+    position:absolute; top:20px; right:22px;
+    width: 36px; height:36px;
     border-radius: 50%;
     background: var(--accent);
+    border: 2px solid var(--ink);
   }
-  .q-card.turning{ transform: rotateY(8deg) scale(0.98); opacity: 0.4; }
+  .q-card.turning{ transform: rotateY(10deg) scale(0.94); opacity: 0.35; }
 
   .q-index{
     font-size: 12.5px;
     color: var(--ink-dim);
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 14px;
   }
   .q-text{
@@ -255,24 +309,24 @@
   .deck-actions{
     display:flex;
     gap: 10px;
-    margin-top: 8px;
+    margin-top: 6px;
   }
   .btn{
     flex:1;
-    border: none;
-    border-radius: 16px;
+    border: 2.5px solid var(--ink);
+    border-radius: 18px;
     padding: 15px 12px;
     font-family: 'Inter', sans-serif;
     font-size: 15px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
-    transition: transform .12s ease, box-shadow .12s ease;
+    transition: transform .1s ease, box-shadow .1s ease;
   }
-  .btn:active{ transform: translate(2px, 2px); box-shadow: none !important; }
+  .btn:active{ transform: translate(3px, 3px); box-shadow: none !important; }
   .btn-primary{
     background: var(--accent);
     color: var(--ink);
-    box-shadow: 0 8px 18px -8px rgba(43,40,51,0.28);
+    box-shadow: 4px 4px 0 rgba(34,28,51,0.9);
   }
   .btn-ghost{
     background: var(--surface);
@@ -280,7 +334,7 @@
     flex: 0 0 52px;
     display:flex; align-items:center; justify-content:center;
     font-size: 18px;
-    box-shadow: 0 6px 14px -8px rgba(43,40,51,0.16);
+    box-shadow: 4px 4px 0 rgba(34,28,51,0.9);
   }
 
   .end-msg{
@@ -288,34 +342,129 @@
     padding: 10px 6px 0;
     color: var(--ink-dim);
     font-size: 13px;
+    font-weight: 600;
   }
+
+  /* ---------- MILESTONE MODAL ---------- */
+  .milestone-overlay{
+    position: fixed; inset: 0;
+    background: rgba(34,28,51,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 24px;
+  }
+  .milestone-overlay.active{ display:flex; }
+  .milestone-card{
+    background: var(--surface);
+    border: 3px solid var(--ink);
+    border-radius: 28px;
+    padding: 32px 26px 26px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 8px 8px 0 var(--sun);
+    position: relative;
+    overflow: hidden;
+  }
+  .milestone-emoji{
+    font-size: 46px;
+    margin-bottom: 6px;
+  }
+  .milestone-title{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 21px;
+    margin-bottom: 8px;
+  }
+  .milestone-sub{
+    color: var(--ink-dim);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .milestone-btn{
+    background: var(--sun);
+    border: 2.5px solid var(--ink);
+    border-radius: 16px;
+    padding: 13px 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 14.5px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 rgba(34,28,51,0.9);
+  }
+  .milestone-btn:active{ transform: translate(3px,3px); box-shadow:none; }
+
+  .confetti-piece{
+    position: absolute;
+    top: -10px;
+    width: 8px; height: 14px;
+    opacity: 0.95;
+    animation: confetti-fall linear forwards;
+    border-radius: 2px;
+  }
+  @keyframes confetti-fall{
+    to{ transform: translateY(340px) rotate(340deg); opacity: 0; }
+  }
+
+  @keyframes pop-in{
+    0%{ transform: scale(0.7); opacity:0; }
+    60%{ transform: scale(1.05); opacity:1; }
+    100%{ transform: scale(1); }
+  }
+  .milestone-card{ animation: pop-in .35s cubic-bezier(.34,1.56,.64,1); }
 </style>
 </head>
 <body>
+<div class="blob-3"></div>
 
 <div id="app">
 
-  <!-- ====== HOME SCREEN ====== -->
-  <div class="screen active" id="screen-home">
-    <div class="home-header">
+  <!-- ====== SCREEN 1: CONTEXT (для кого) ====== -->
+  <div class="screen active" id="screen-context">
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="screen-header">
       <div class="eyebrow">Изнанка</div>
-      <div class="home-title">Загляни <span class="hl">глубже</span><br>друг в друга</div>
-      <div class="home-sub">Выбери направление — и продолжайте разговор карточка за карточкой.</div>
+      <div class="screen-title">С кем сегодня<br><span class="hl">говорим</span>?</div>
+      <div class="screen-sub">Выбери, для кого этот разговор — а дальше подберём вопросы.</div>
     </div>
 
-    <div class="topics" id="topics-grid"></div>
+    <div class="card-grid" id="context-grid"></div>
 
-    <div class="footnote">Новые темы и вопросы добавляются&nbsp;постепенно</div>
+    <div class="footnote">Новые направления и вопросы добавляются&nbsp;постепенно</div>
   </div>
 
-  <!-- ====== DECK SCREEN ====== -->
+  <!-- ====== SCREEN 2: CATEGORY (какие вопросы) ====== -->
+  <div class="screen" id="screen-category">
+    <div class="deck-top">
+      <button class="back-btn" id="btn-back-to-context">← Назад</button>
+      <div class="deck-label" id="category-context-label"></div>
+    </div>
+    <div class="screen-header" style="padding-top:10px;">
+      <div class="screen-title" id="category-title" style="font-size:23px;">Какие вопросы?</div>
+      <div class="screen-sub">От лёгкого знакомства до вопросов в самую глубину.</div>
+    </div>
+
+    <div class="card-grid single-col" id="category-grid"></div>
+  </div>
+
+  <!-- ====== SCREEN 3: DECK ====== -->
   <div class="screen" id="screen-deck">
     <div class="deck-top">
-      <button class="back-btn" id="btn-back">← Темы</button>
+      <button class="back-btn" id="btn-back-to-category">← Назад</button>
       <div class="deck-label" id="deck-label"></div>
     </div>
 
-    <div class="progress-row" id="progress-row"></div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="fill" id="progress-fill"></div></div>
+      <div class="progress-caption">
+        <span id="progress-caption-left">Вопрос 1 из 8</span>
+        <span id="progress-caption-right">🔥 0</span>
+      </div>
+    </div>
 
     <div class="card-wrap">
       <div class="q-card" id="q-card">
@@ -333,194 +482,427 @@
 
 </div>
 
+<!-- ====== MILESTONE MODAL ====== -->
+<div class="milestone-overlay" id="milestone-overlay">
+  <div class="milestone-card" id="milestone-card">
+    <div class="milestone-emoji" id="milestone-emoji">💛</div>
+    <div class="milestone-title" id="milestone-title">Вы стали ближе!</div>
+    <div class="milestone-sub" id="milestone-sub">Вы вместе обсудили уже 5 вопросов.</div>
+    <button class="milestone-btn" id="milestone-close">Продолжить разговор</button>
+  </div>
+</div>
+
 <script>
-/* ======================================================
-   ДАННЫЕ. Добавляй свои вопросы прямо сюда, в массив нужной темы.
-   ====================================================== */
-const TOPICS = {
+const CATEGORY_META = {
+  intro:  { name: "Знакомство",       desc: "Лёгкий вход в разговор" },
+  deep:   { name: "Погружение",       desc: "Вопросы в глубину" },
+  spicy:  { name: "Пикантные вопросы", desc: "Дерзко и с огоньком" },
+  ten:    { name: "10 из 10, но",     desc: "Идеально, но с подвохом" },
+  choose: { name: "Сделай выбор",     desc: "Одно из двух" },
+};
+
+const CONTEXTS = {
   pair: {
     name: "Пара",
     icon: "❤️",
     accent: "var(--pair)",
-    questions: [
-      "Какой момент за последний месяц ты хотел(а) бы прожить ещё раз вместе со мной?",
-      "Что я делаю такого, за что ты мне благодарен(на), но редко говоришь об этом?",
-      "Как ты понимаешь, что тебе сейчас нужна поддержка, а не совет?",
-      "Каким ты видишь нас через 5 лет?",
-      "Что для тебя значит быть услышанным(ой) в отношениях?",
-      "Была ли неделя, когда ты чувствовал(а) себя особенно близко ко мне? Почему?",
-      "Что из моих привычек тебе особенно нравится?",
-      "Какую мечту ты пока не рассказывал(а) мне?",
-      "В какой момент ты почувствовал(а), что можешь мне полностью доверять?",
-      "Что тебе легче показать делом, чем сказать словами?",
-      "Какой был самый честный разговор, который у нас случался?",
-      "Что тебя пугает в наших отношениях, даже если сейчас всё хорошо?",
-      "Какая моя реакция на трудности помогает тебе, а какая — ранит?",
-      "Если бы мы могли повторить одно свидание — какое?",
-      "Что бы ты хотел(а), чтобы я знал(а) о тебе, но никогда не спрашивал(а)?",
-      "Как изменилось твоё представление о любви за последние годы?",
-      "Что для тебя ощущается как настоящая забота — не на словах, а по факту?",
-      "Есть ли тема, которую нам стоит обсуждать чаще?",
-      "Когда ты в последний раз чувствовал(а) гордость за меня?",
-      "Что помогает тебе быстрее отпустить обиду?",
-      "Какой конфликт между нами до сих пор кажется тебе непонятым?",
-      "Что в детстве сформировало твоё представление об отношениях?",
-      "Какую поддержку ты хотел(а) бы получать от меня в трудные периоды?",
-      "Есть ли привычка во мне, которая со временем стала тебе особенно дорога?",
-      "Что тебя удивило во мне за последний год?",
-      "Как ты понимаешь, что между нами сейчас дистанция, и что тогда помогает?",
-      "Какое совместное решение ты считаешь самым важным из тех, что мы приняли?",
-      "Что бы ты хотел(а) изменить в том, как мы проводим время вдвоём?",
-    ]
+    categories: {
+      intro: { questions: [
+        "Что в первую нашу встречу произвело на тебя самое сильное впечатление?",
+        "Какая моя привычка удивила тебя больше всего, когда мы только начали быть вместе?",
+        "Что ты знал(а) обо мне ещё до того, как мы сблизились?",
+        "Какой вопрос обо мне ты бы задал(а), если бы мы только познакомились сегодня?",
+        "Что изменилось в твоём представлении обо мне за это время?",
+        "Какая наша первая ссора запомнилась тебе больше всего?",
+        "Что тебя во мне удивляет до сих пор?",
+        "Каким был момент, когда ты понял(а), что это серьёзно?",
+      ]},
+      deep: { questions: [
+        "Что для тебя значит быть услышанным(ой) в отношениях?",
+        "Какой момент ты хотел(а) бы прожить ещё раз вместе со мной?",
+        "Что я делаю такого, за что ты благодарен(на), но редко говоришь?",
+        "Что тебя пугает в наших отношениях, даже если сейчас всё хорошо?",
+        "Какой был самый честный разговор, который у нас случался?",
+        "Что бы ты хотел(а), чтобы я знал(а) о тебе, но никогда не спрашивал(а)?",
+        "Как изменилось твоё представление о любви за последние годы?",
+        "Каким ты видишь нас через 5 лет?",
+      ]},
+      spicy: { questions: [
+        "Какая моя черта внешности тебе нравится больше всего?",
+        "Опиши момент, когда почувствовал(а) особенно сильное притяжение ко мне.",
+        "Какой жест нежности от меня тебе особенно запоминается?",
+        "Если бы у нас был неожиданный свободный вечер вдвоём — как бы ты его провёл(а)?",
+        "Какой комплимент ты давно хотел(а) от меня услышать?",
+        "Что в наших отношениях кажется тебе самым романтичным?",
+        "Какое свидание из фильмов ты бы хотел(а) повторить с нами в главных ролях?",
+        "Какая мелочь в моём поведении заставляет тебя таять?",
+      ]},
+      ten: { questions: [
+        "Отношения на 10 из 10, но раз в неделю нужно проводить день в полном молчании. Согласен(на)?",
+        "Идеальный партнёр 10 из 10, но живёт в другом городе и видеться можно раз в месяц. Твоё решение?",
+        "Свидание мечты на 10 из 10, но телефоны нужно сдать на весь день. Как тебе?",
+        "Отношения 10 из 10, но один из вас всегда должен первым идти на компромисс. Готов(а) быть этим человеком?",
+        "Дом мечты на 10 из 10, но жить в нём можно только вдвоём, без гостей никогда. Подходит?",
+        "Романтика 10 из 10, но сюрпризы нужно готовить самому/самой каждую неделю. Справишься?",
+        "Партнёр 10 из 10 во всём, кроме одной черты характера — какую бы ты мог(ла) стерпеть?",
+        "Отпуск мечты 10 из 10, но без интернета и связи 2 недели. Едешь?",
+      ]},
+      choose: { questions: [
+        "Провести вечер дома вдвоём или выбраться куда-то в люди?",
+        "Получать сюрпризы или планировать всё заранее вместе?",
+        "Долгий разговор по душам или спонтанное приключение?",
+        "Слышать правду, даже неприятную, или мягкую полуправду?",
+        "Молчаливая близость или постоянные разговоры?",
+        "Прощать быстро или обсуждать до полной ясности?",
+        "Общие увлечения или личное пространство важнее?",
+        "Жить в городе мечты порознь или в обычном городе вместе?",
+      ]},
+    }
   },
-  friends: {
-    name: "Друзья",
-    icon: "✦",
-    accent: "var(--friends)",
-    questions: [
-      "Какое наше совместное воспоминание ты вспоминаешь чаще всего?",
-      "Что в дружбе для тебя важнее всего: поддержка, честность или веселье?",
-      "Есть ли что-то, чему ты научился(ась) у меня?",
-      "Какой была бы наша идеальная совместная поездка?",
-      "Что заставляет тебя чувствовать, что дружба настоящая?",
-      "О чём ты давно хотел(а) меня спросить, но не решался(ась)?",
-      "Какая черта характера друга для тебя самая ценная?",
-      "Если бы мы начали новую традицию вдвоём — какую?",
-      "Как ты понял(а), что мы стали действительно близкими друзьями?",
-      "Что тебе было бы трудно сказать мне прямо, но легче — сейчас, в игре?",
-      "Есть ли период, когда наша дружба отдалилась, и что тогда произошло?",
-      "Что ты ценишь в наших разговорах: глубину, юмор или честность?",
-      "Какой совет, который я тебе дал(а), оказался самым полезным?",
-      "Что тебя восхищает во мне, но ты редко об этом говоришь?",
-      "Каким человеком ты хочешь быть для своих друзей через 10 лет?",
-      "Есть ли в наших отношениях что-то, о чём стоит поговорить прямо сейчас?",
-      "Что тебе даёт наша дружба такого, чего нет в других отношениях?",
-      "Какой была самая смешная ситуация, которую мы пережили вместе?",
-      "Что бы ты хотел(а), чтобы я делал(а) чаще как друг?",
-      "Каким было твоё первое впечатление обо мне и насколько оно изменилось?",
-      "Есть ли тема, которую тебе комфортнее обсуждать со мной, чем с семьёй?",
-      "Что помогает тебе быть честным(ой) со мной, даже когда это неудобно?",
-      "Какую поддержку ты хотел(а) бы получать от меня в трудные периоды?",
-      "Если бы у нас был общий проект — каким бы он был?",
-      "Что в тебе изменилось за годы нашей дружбы больше всего?",
-      "Какая моя черта иногда тебя раздражает, но ты это принимаешь?",
-      "Что ты бы хотел(а) узнать обо мне такого, чего до сих пор не спрашивал(а)?",
-    ]
-  },
+
   family: {
     name: "Семья",
     icon: "⌂",
     accent: "var(--family)",
-    questions: [
-      "Какая семейная традиция для тебя самая важная?",
-      "Что ты хотел(а) бы передать следующему поколению семьи?",
-      "Какое воспоминание детства ты вспоминаешь с особенной теплотой?",
-      "Что тебя сейчас беспокоит, о чём мы редко говорим?",
-      "Чем ты гордишься в нашей семье?",
-      "Какой урок ты вынес(ла) из трудного периода в семье?",
-      "Что бы ты хотел(а) изменить в том, как мы проводим время вместе?",
-      "Какая черта у кого-то из семьи тебе особенно дорога?",
-      "Что в нашей семье повторяется из поколения в поколение — хорошее и не очень?",
-      "Каким было самое трудное решение, которое тебе пришлось принять ради семьи?",
-      "Что ты чувствуешь, когда вспоминаешь дом, в котором вырос(ла)?",
-      "Есть ли то, за что ты до сих пор хочешь услышать от родных «прости» или «спасибо»?",
-      "Как менялось твоё отношение к семье с возрастом?",
-      "Что ты бы хотел(а), чтобы мы делали вместе чаще?",
-      "Какая семейная фраза или привычка осталась с тобой навсегда?",
-      "Что тебе труднее всего простить в семейных отношениях?",
-      "Каким родителем (или каким человеком в семье) ты хочешь быть?",
-      "Есть ли тема, которую в нашей семье избегают, но стоило бы обсудить?",
-      "Что ты чувствуешь, когда думаешь о том, как быстро летит время с близкими?",
-      "Какой момент в семье научил тебя быть сильнее?",
-      "Что тебе хотелось бы услышать от меня чаще?",
-      "Какую поддержку ты ждёшь от семьи, когда тебе тяжело?",
-      "Есть ли обида из детства, которая иногда всё ещё даёт о себе знать?",
-      "Что делает наш дом — домом, для тебя?",
-      "Какую ценность из семьи ты пронёс(ла) через всю жизнь?",
-      "Что бы ты хотел(а) рассказать о себе, но пока не решался(ась)?",
-      "Какой поступок родных однажды изменил твой взгляд на них?",
-    ]
+    categories: {
+      intro: { questions: [
+        "Какая история о нашей семье тебе нравится рассказывать другим?",
+        "Что ты помнишь о доме, где мы жили в твоём детстве?",
+        "Какая моя привычка была для тебя неожиданной, когда ты узнал(а) меня лучше?",
+        "Каким было моё самое яркое качество в детстве, по твоим воспоминаниям?",
+        "Что тебе запомнилось из нашего первого совместного праздника?",
+        "Какую семейную историю ты бы хотел(а) услышать снова?",
+        "Что тебя удивило во мне, когда я стал(а) взрослым(ой)?",
+        "Какая наша с тобой традиция появилась случайно?",
+      ]},
+      deep: { questions: [
+        "Какая семейная традиция для тебя самая важная?",
+        "Что ты хотел(а) бы передать следующему поколению семьи?",
+        "Чем ты гордишься в нашей семье?",
+        "Какой урок ты вынес(ла) из трудного периода в семье?",
+        "Есть ли то, за что ты до сих пор хочешь услышать «прости» или «спасибо»?",
+        "Что делает наш дом — домом, для тебя?",
+        "Какую ценность из семьи ты пронёс(ла) через всю жизнь?",
+        "Что бы ты хотел(а) рассказать о себе, но пока не решался(ась)?",
+      ]},
+      choose: { questions: [
+        "Собираться всей семьёй чаще или качественно, но редко?",
+        "Открыто говорить о проблемах или беречь мир любой ценой?",
+        "Семейные традиции или свобода делать по-новому?",
+        "Проводить праздники дома или путешествовать вместе?",
+        "Быть честным всегда или иногда щадить чувства близких?",
+        "Помогать советом или просто быть рядом молча?",
+        "Хранить старые вещи как память или начинать с чистого листа?",
+        "Обсуждать деньги открыто в семье или держать это личным?",
+      ]},
+    }
   },
+
+  friends_duo: {
+    name: "Друзья вдвоём",
+    icon: "✦",
+    accent: "var(--friends)",
+    categories: {
+      intro: { questions: [
+        "Что в тебе меня зацепило при первой встрече?",
+        "Какое было моё первое впечатление о тебе, которое оказалось неверным?",
+        "Какая наша общая история звучит невероятно со стороны?",
+        "Что ты знал(а) обо мне ещё до того, как мы подружились по-настоящему?",
+        "Какой момент стал переломным в нашей дружбе?",
+        "Что тебя удивило, когда ты узнал(а) меня лучше?",
+        "Какую мою черту ты заметил(а) не сразу, но она оказалась важной?",
+        "Как бы ты описал(а) нашу дружбу одним словом при знакомстве?",
+      ]},
+      deep: { questions: [
+        "Что в дружбе для тебя важнее всего: поддержка, честность или веселье?",
+        "Как ты понял(а), что мы стали действительно близкими друзьями?",
+        "Что тебе было бы трудно сказать мне прямо, но легче — сейчас, в игре?",
+        "Что ты ценишь в наших разговорах: глубину, юмор или честность?",
+        "Что тебя восхищает во мне, но ты редко об этом говоришь?",
+        "Есть ли в наших отношениях что-то, о чём стоит поговорить прямо сейчас?",
+        "Какую поддержку ты хотел(а) бы получать от меня в трудные периоды?",
+        "Что бы ты хотел(а) узнать обо мне такого, чего до сих пор не спрашивал(а)?",
+      ]},
+      spicy: { questions: [
+        "Какой самый неловкий момент из наших совместных тусовок?",
+        "Было ли у тебя чувство влюблённости, о котором ты никому не говорил(а)?",
+        "Какая шутка или прозвище прижилось в нашей компании навсегда?",
+        "Что из своей личной жизни ты рассказываешь только близким друзьям?",
+        "Какой твой самый смелый поступок ради дружбы?",
+        "Есть ли тайна, которую ты доверил(а) только близким друзьям?",
+        "Какой момент дружеской тусовки был неловко-смешным до слёз?",
+        "Кого из нашей компании ты бы взял(а) с собой на необитаемый остров и почему?",
+      ]},
+      ten: { questions: [
+        "Идеальная дружба 10 из 10, но видеться можно раз в год. Стоит того?",
+        "Друг 10 из 10 во всём, но постоянно опаздывает. Терпимо?",
+        "Путешествие мечты с другом 10 из 10, но без телефона 10 дней. Едешь?",
+        "Дружба 10 из 10, но иногда нужно говорить неприятную правду. Готов(а)?",
+        "Идеальный собеседник 10 из 10, но живёт в другом часовом поясе. Как быть?",
+        "Друг 10 из 10, но иногда пропадает на месяцы без объяснений. Принимаешь?",
+        "Вечеринка мечты 10 из 10, но заканчивается ровно в полночь. Идёшь?",
+        "Дружба 10 из 10, но раз в год общий отпуск обязателен. Ок?",
+      ]},
+      choose: { questions: [
+        "Один близкий друг или большая компания приятелей?",
+        "Дружба на расстоянии или рядом, но реже видеться?",
+        "Слышать честную критику от друга или только поддержку?",
+        "Спонтанные встречи или планировать заранее?",
+        "Друг, который молчит о своих проблемах, или который делится слишком много?",
+        "Общие интересы или взаимное дополнение разными увлечениями?",
+        "Дружба с юмором и лёгкостью или с глубокими разговорами?",
+        "Один долгий разговор в год или короткие созвоны каждую неделю?",
+      ]},
+    }
+  },
+
+  friends_group: {
+    name: "Компания друзей",
+    icon: "◈",
+    accent: "var(--group)",
+    categories: {
+      intro: { questions: [
+        "Какая привычка в компании выдаёт тебя сразу?",
+        "Если бы вечеринка была фильмом, какую роль ты бы играл(а)?",
+        "Кто в этой компании самый непредсказуемый и почему?",
+        "Какое групповое приключение ты вспоминаешь чаще всего?",
+        "Что тебя удивило в этой компании, когда ты только присоединился(ась)?",
+        "Какая традиция этой компании тебе нравится больше всего?",
+        "Кто здесь лучше всех умеет разрядить обстановку?",
+        "Какой самый безумный план возникал в этой компании?",
+      ]},
+      ten: { questions: [
+        "Компания друзей 10 из 10, но раз в месяц нужен общий созвон на час. Ок?",
+        "Вечеринка 10 из 10, но телефоны сдаются на входе. Идёшь?",
+        "Путешествие компанией 10 из 10, но бюджет делится строго поровну без исключений. Согласен(на)?",
+        "Компания 10 из 10, но кто-то один всегда опаздывает на час. Терпимо?",
+        "Идеальные посиделки 10 из 10, но заканчиваются ровно в 23:00. Норм?",
+        "Дружеский чат 10 из 10, но там нельзя писать мемы. Выживешь?",
+        "Компания 10 из 10, но раз в год обязательный поход без связи на 3 дня. Едешь?",
+        "Тусовка 10 из 10, но музыку выбирает только один человек. Ок?",
+      ]},
+      choose: { questions: [
+        "Шумная вечеринка или тихие посиделки с разговорами?",
+        "Спонтанная встреча компанией или запланированная заранее?",
+        "Настолки или активный отдых на природе?",
+        "Один большой отпуск компанией или частые короткие встречи?",
+        "Компания, где всегда шутят, или где можно говорить серьёзно?",
+        "Быть тем, кто организует, или тем, кто просто приходит?",
+        "Общий чат с ежедневной активностью или редкие, но душевные созвоны?",
+        "Знакомиться с новыми людьми в компании или держаться привычного круга?",
+      ]},
+    }
+  },
+
   work: {
     name: "Работа",
     icon: "◆",
     accent: "var(--work)",
-    questions: [
-      "Что в текущем проекте тебе даётся легко, а что — тяжело?",
-      "Какая обратная связь от команды была для тебя самой полезной?",
-      "Что тебе нужно от коллег, чтобы работать в полную силу?",
-      "Какой момент за последний месяц был для тебя маленькой победой?",
-      "Что бы ты изменил(а) в том, как мы общаемся в команде?",
-      "Какая задача сейчас вызывает больше всего сомнений?",
-      "Чему ты научился(ась) за последний рабочий квартал?",
-      "Что тебя мотивирует в этой работе сильнее всего?",
-      "Какая часть твоей работы остаётся незаметной для других, хотя отнимает много сил?",
-      "Что помогает тебе восстанавливаться после напряжённой недели?",
-      "Какое решение в работе далось тебе труднее всего за последнее время?",
-      "Что ты хотел(а) бы услышать от руководителя или команды чаще?",
-      "Есть ли задача, за которую ты боишься взяться, потому что боишься не справиться?",
-      "Что тебе важнее в работе: результат, процесс или отношения с людьми?",
-      "Какая обратная связь была для тебя неприятной, но полезной?",
-      "Что бы ты хотел(а) сказать команде, но пока сдерживаешься?",
-      "Каким было твоё самое большое профессиональное разочарование и чему оно научило?",
-      "Что помогает тебе не выгорать на этой работе?",
-      "Какая твоя сильная сторона, по-твоему, недооценена командой?",
-      "Что для тебя значит быть частью этой команды?",
-      "Какой конфликт на работе до сих пор не до конца разрешён?",
-      "Что тебе нужно, чтобы честно сказать «нет» лишней задаче?",
-      "Каким ты видишь свой профессиональный рост через год?",
-      "Что в культуре нашей команды тебе действительно нравится?",
-      "Есть ли что-то, за что ты давно хотел(а) поблагодарить коллегу, но не сказал(а)?",
-      "Какая граница между работой и личной жизнью для тебя особенно важна сейчас?",
-      "Что бы ты хотел(а) изменить в том, как принимаются решения в команде?",
-    ]
+    categories: {
+      intro: { questions: [
+        "Что тебя привело в эту сферу работы?",
+        "Какой был твой самый первый рабочий опыт?",
+        "Что удивило тебя в этой команде, когда ты только пришёл(ла)?",
+        "Какое качество коллеги подкупает тебя быстрее всего?",
+        "Что ты знал(а) об этой работе до того, как начал(а) здесь работать?",
+        "Какой проект запомнился тебе больше всего за это время?",
+        "Что тебе нравится в первый час рабочего дня?",
+        "Какая привычка коллег выдаёт их характер сразу?",
+      ]},
+      deep: { questions: [
+        "Что тебе нужно от коллег, чтобы работать в полную силу?",
+        "Какая часть твоей работы остаётся незаметной для других?",
+        "Что помогает тебе не выгорать на этой работе?",
+        "Что бы ты хотел(а) сказать команде, но пока сдерживаешься?",
+        "Какая твоя сильная сторона недооценена командой?",
+        "Что для тебя значит быть частью этой команды?",
+        "Какая граница между работой и личной жизнью для тебя особенно важна сейчас?",
+        "Каким ты видишь свой профессиональный рост через год?",
+      ]},
+      choose: { questions: [
+        "Чёткие инструкции или свобода действий в задаче?",
+        "Работать в тишине или с фоновым общением команды?",
+        "Быстрый результат или тщательная проработка деталей?",
+        "Открытая обратная связь на людях или один на один?",
+        "Гибкий график или чёткое расписание?",
+        "Работать в одиночку над сложной задачей или в команде?",
+        "Получать признание публично или личной благодарностью?",
+        "Амбициозные цели с риском или стабильный предсказуемый рост?",
+      ]},
+    }
   },
 };
 
-/* ====================================================== */
+/* ======================================================
+   ГЕЙМИФИКАЦИЯ: стрик, счётчик вопросов, прогресс по колодам
+   ====================================================== */
+const STORAGE_KEY = 'izna_progress_v1';
+const MILESTONES = [5, 10, 25, 50, 100, 200, 350, 500];
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e){}
+  return { totalAnswered: 0, streak: 0, lastDate: null, perDeck: {}, milestonesSeen: [] };
+}
+
+function saveState(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+let state = loadState();
+
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function bumpStreak(){
+  const today = todayStr();
+  if (state.lastDate === today) return;
+  if (state.lastDate) {
+    const prev = new Date(state.lastDate);
+    const diffDays = Math.round((new Date(today) - prev) / 86400000);
+    state.streak = diffDays === 1 ? state.streak + 1 : 1;
+  } else {
+    state.streak = 1;
+  }
+  state.lastDate = today;
+  saveState();
+}
+bumpStreak();
+
+/* ---------- stats pill on context screen ---------- */
+function renderStatsBar(){
+  const bar = document.getElementById('stats-bar');
+  bar.innerHTML = `
+    <div class="stat-chip"><span class="emoji">🔥</span>${state.streak} ${streakWord(state.streak)}</div>
+    <div class="stat-chip"><span class="emoji">💬</span>${state.totalAnswered} вопросов вместе</div>
+  `;
+}
+function streakWord(n){
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'день';
+  if ([2,3,4].includes(mod10) && ![12,13,14].includes(mod100)) return 'дня';
+  return 'дней';
+}
+
+/* ---------- confetti ---------- */
+const CONFETTI_COLORS = ['#ff6b81','#1fc9a8','#9b6bff','#3ec1ec','#ffb020','#ffc93c'];
+function burstConfetti(container){
+  for (let i=0; i<26; i++){
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = (Math.random()*100) + '%';
+    p.style.background = CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)];
+    p.style.animationDuration = (0.9 + Math.random()*0.9) + 's';
+    p.style.animationDelay = (Math.random()*0.25) + 's';
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 2200);
+  }
+}
+
+/* ---------- milestone modal ---------- */
+const milestoneOverlay = document.getElementById('milestone-overlay');
+const milestoneCard = document.getElementById('milestone-card');
+const milestoneTitle = document.getElementById('milestone-title');
+const milestoneSub = document.getElementById('milestone-sub');
+const milestoneEmoji = document.getElementById('milestone-emoji');
+document.getElementById('milestone-close').addEventListener('click', () => {
+  milestoneOverlay.classList.remove('active');
+});
+
+function milestoneCopy(n){
+  const table = {
+    5:   ["🌱", "Первые шаги", "Вы вместе обсудили уже 5 вопросов — разговор только начинается."],
+    10:  ["💛", "Вы стали ближе!", "10 вопросов позади. Уже видно, что вам есть, что сказать друг другу."],
+    25:  ["✨", "Открытая книга", "25 вопросов — вы явно готовы говорить не только о погоде."],
+    50:  ["🔥", "Родственные души", "50 вопросов вместе! Это серьёзный уровень близости."],
+    100: ["🏆", "Сотня!", "100 вопросов обсуждено. Немногие заходят так далеко."],
+    200: ["🌟", "Настоящие партнёры по разговору", "200 вопросов — вы знаете друг друга по-настоящему глубоко."],
+    350: ["💎", "Изнанка наизнанку", "350 вопросов. Вы прошли через это вместе — впечатляет."],
+    500: ["👑", "Легенда разговоров", "500 вопросов вместе. Это уже не игра, это образ жизни."],
+  };
+  return table[n] || ["🎉", "Вы стали ближе!", `Вы вместе обсудили уже ${n} вопросов.`];
+}
+
+function checkMilestone(){
+  for (const m of MILESTONES) {
+    if (state.totalAnswered >= m && !state.milestonesSeen.includes(m)) {
+      state.milestonesSeen.push(m);
+      saveState();
+      const [emoji, title, sub] = milestoneCopy(m);
+      milestoneEmoji.textContent = emoji;
+      milestoneTitle.textContent = title;
+      milestoneSub.textContent = sub;
+      milestoneOverlay.querySelectorAll('.confetti-piece').forEach(p => p.remove());
+      milestoneOverlay.classList.add('active');
+      burstConfetti(milestoneCard);
+      tg?.HapticFeedback?.notificationOccurred('success');
+      break;
+    }
+  }
+}
+
+/* ---------- deck key + per-deck progress ---------- */
+function deckKey(contextKey, categoryKey){ return contextKey + ':' + categoryKey; }
+
+function getDeckProgress(contextKey, categoryKey){
+  const key = deckKey(contextKey, categoryKey);
+  return state.perDeck[key] || { seen: 0 };
+}
+
+function markQuestionAnswered(contextKey, categoryKey, total){
+  const key = deckKey(contextKey, categoryKey);
+  if (!state.perDeck[key]) state.perDeck[key] = { seen: 0 };
+  if (state.perDeck[key].seen < total) {
+    state.perDeck[key].seen += 1;
+  }
+  state.totalAnswered += 1;
+  saveState();
+  renderStatsBar();
+  checkMilestone();
+}
+
+/* ======================================================
+   ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ
+   ====================================================== */
 
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
-  tg.setHeaderColor?.('#fff6e2');
-  tg.setBackgroundColor?.('#fff6e2');
+  tg.setHeaderColor?.('#fff8ee');
+  tg.setBackgroundColor?.('#fff8ee');
 }
 
-const homeScreen = document.getElementById('screen-home');
-const deckScreen = document.getElementById('screen-deck');
-const topicsGrid = document.getElementById('topics-grid');
+const screenContext = document.getElementById('screen-context');
+const screenCategory = document.getElementById('screen-category');
+const screenDeck = document.getElementById('screen-deck');
+
+const contextGrid = document.getElementById('context-grid');
+const categoryGrid = document.getElementById('category-grid');
+const categoryContextLabel = document.getElementById('category-context-label');
+const categoryTitle = document.getElementById('category-title');
+
 const deckLabel = document.getElementById('deck-label');
-const progressRow = document.getElementById('progress-row');
+const progressFill = document.getElementById('progress-fill');
+const progressCaptionLeft = document.getElementById('progress-caption-left');
+const progressCaptionRight = document.getElementById('progress-caption-right');
 const qCard = document.getElementById('q-card');
 const qIndex = document.getElementById('q-index');
 const qText = document.getElementById('q-text');
 const btnNext = document.getElementById('btn-next');
 const btnShuffle = document.getElementById('btn-shuffle');
-const btnBack = document.getElementById('btn-back');
+const btnBackToContext = document.getElementById('btn-back-to-context');
+const btnBackToCategory = document.getElementById('btn-back-to-category');
 const endMsg = document.getElementById('end-msg');
 
-let currentTopicKey = null;
+let currentContextKey = null;
+let currentCategoryKey = null;
 let currentOrder = [];
 let currentIndex = 0;
-
-function renderTopics(){
-  topicsGrid.innerHTML = '';
-  Object.entries(TOPICS).forEach(([key, t]) => {
-    const el = document.createElement('button');
-    el.className = 'topic-card';
-    el.dataset.topic = key;
-    el.innerHTML = `
-      <div class="topic-icon">${t.icon}</div>
-      <div>
-        <div class="topic-name">${t.name}</div>
-        <div class="topic-count">${t.questions.length} вопросов</div>
-      </div>
-    `;
-    el.addEventListener('click', () => openTopic(key));
-    topicsGrid.appendChild(el);
-  });
-}
 
 function shuffle(arr){
   const a = arr.slice();
@@ -531,69 +913,128 @@ function shuffle(arr){
   return a;
 }
 
-function openTopic(key){
-  currentTopicKey = key;
-  currentOrder = shuffle(TOPICS[key].questions.map((_, i) => i));
-  currentIndex = 0;
+function showScreen(el){
+  [screenContext, screenCategory, screenDeck].forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
 
-  const t = TOPICS[key];
-  document.documentElement.style.setProperty('--accent-runtime', t.accent);
-  deckScreen.style.setProperty('--accent', t.accent);
-  deckLabel.textContent = t.name;
-  deckLabel.style.color = t.accent;
+/* ---------- SCREEN 1: contexts ---------- */
+function renderContexts(){
+  renderStatsBar();
+  contextGrid.innerHTML = '';
+  Object.entries(CONTEXTS).forEach(([key, c]) => {
+    const catCount = Object.keys(c.categories).length;
+    const el = document.createElement('button');
+    el.className = 'pick-card';
+    el.style.setProperty('--accent', c.accent);
+    el.innerHTML = `
+      <div class="pick-icon">${c.icon}</div>
+      <div>
+        <div class="pick-name">${c.name}</div>
+        <div class="pick-desc">${catCount} ${catCount === 1 ? 'категория' : 'категории'} вопросов</div>
+      </div>
+    `;
+    el.addEventListener('click', () => openContext(key));
+    contextGrid.appendChild(el);
+  });
+}
 
-  buildProgress();
-  showQuestion();
-
-  homeScreen.classList.remove('active');
-  deckScreen.classList.add('active');
+function openContext(key){
+  currentContextKey = key;
+  const c = CONTEXTS[key];
+  categoryContextLabel.textContent = c.name;
+  categoryContextLabel.style.color = c.accent;
+  categoryTitle.innerHTML = `Какие вопросы<br>для «${c.name}»?`;
+  renderCategories();
+  showScreen(screenCategory);
   tg?.HapticFeedback?.impactOccurred('light');
 }
 
-function buildProgress(){
-  progressRow.innerHTML = '';
-  currentOrder.forEach(() => {
-    const dot = document.createElement('div');
-    dot.className = 'progress-dot';
-    dot.innerHTML = '<div class="fill"></div>';
-    progressRow.appendChild(dot);
+/* ---------- SCREEN 2: categories ---------- */
+function renderCategories(){
+  const c = CONTEXTS[currentContextKey];
+  categoryGrid.innerHTML = '';
+  Object.entries(c.categories).forEach(([key, cat]) => {
+    const meta = CATEGORY_META[key];
+    const total = cat.questions.length;
+    const progress = getDeckProgress(currentContextKey, key);
+    const pct = Math.min(100, Math.round((progress.seen / total) * 100));
+    const el = document.createElement('button');
+    el.className = 'pick-card';
+    el.style.setProperty('--accent', c.accent);
+    el.innerHTML = `
+      <div class="pick-icon" style="font-size:15px;">${total}</div>
+      <div>
+        <div class="pick-name">${meta.name}</div>
+        <div class="pick-desc">${meta.desc}${progress.seen > 0 ? ` · пройдено ${progress.seen}/${total}` : ''}</div>
+        <div class="pick-progress"><div class="fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+    el.addEventListener('click', () => openDeck(key));
+    categoryGrid.appendChild(el);
   });
 }
 
-function updateProgress(){
-  const dots = progressRow.querySelectorAll('.progress-dot .fill');
-  dots.forEach((d, i) => {
-    d.style.width = i < currentIndex ? '100%' : (i === currentIndex ? '100%' : '0%');
-  });
+/* ---------- SCREEN 3: deck ---------- */
+function openDeck(categoryKey){
+  currentCategoryKey = categoryKey;
+  const c = CONTEXTS[currentContextKey];
+  const cat = c.categories[categoryKey];
+  const meta = CATEGORY_META[categoryKey];
+
+  currentOrder = shuffle(cat.questions.map((_, i) => i));
+  currentIndex = 0;
+
+  screenDeck.style.setProperty('--accent', c.accent);
+  deckLabel.textContent = `${c.name} · ${meta.name}`;
+  deckLabel.style.color = c.accent;
+
+  showQuestion();
+  showScreen(screenDeck);
+  tg?.HapticFeedback?.impactOccurred('light');
+}
+
+function getCurrentQuestions(){
+  return CONTEXTS[currentContextKey].categories[currentCategoryKey].questions;
 }
 
 function showQuestion(){
-  const t = TOPICS[currentTopicKey];
+  const questions = getCurrentQuestions();
   const done = currentIndex >= currentOrder.length;
+  const total = currentOrder.length;
 
   if (done) {
     qIndex.textContent = 'Готово';
     qText.textContent = 'Вопросы закончились — перемешай колоду и продолжайте разговор.';
     endMsg.style.display = 'block';
     btnNext.textContent = 'Начать заново';
+    progressFill.style.width = '100%';
+    progressCaptionLeft.textContent = `${total} из ${total}`;
   } else {
     const qi = currentOrder[currentIndex];
-    qIndex.textContent = `Вопрос ${currentIndex + 1} из ${currentOrder.length}`;
-    qText.textContent = t.questions[qi];
+    qIndex.textContent = `Вопрос ${currentIndex + 1} из ${total}`;
+    qText.textContent = questions[qi];
     endMsg.style.display = 'none';
     btnNext.textContent = 'Следующий вопрос';
+    progressFill.style.width = `${Math.round((currentIndex / total) * 100)}%`;
+    progressCaptionLeft.textContent = `Вопрос ${currentIndex + 1} из ${total}`;
   }
-  updateProgress();
+  progressCaptionRight.textContent = `🔥 ${state.streak}`;
 }
 
 function nextQuestion(){
+  const wasAnswering = currentIndex < currentOrder.length;
   qCard.classList.add('turning');
   tg?.HapticFeedback?.selectionChanged();
+
+  if (wasAnswering) {
+    markQuestionAnswered(currentContextKey, currentCategoryKey, currentOrder.length);
+  }
+
   setTimeout(() => {
     if (currentIndex >= currentOrder.length) {
       currentOrder = shuffle(currentOrder);
       currentIndex = 0;
-      buildProgress();
     } else {
       currentIndex++;
     }
@@ -607,17 +1048,21 @@ btnNext.addEventListener('click', nextQuestion);
 btnShuffle.addEventListener('click', () => {
   currentOrder = shuffle(currentOrder);
   currentIndex = 0;
-  buildProgress();
   showQuestion();
   tg?.HapticFeedback?.impactOccurred('medium');
 });
 
-btnBack.addEventListener('click', () => {
-  deckScreen.classList.remove('active');
-  homeScreen.classList.add('active');
+btnBackToCategory.addEventListener('click', () => {
+  renderCategories();
+  showScreen(screenCategory);
 });
 
-renderTopics();
+btnBackToContext.addEventListener('click', () => {
+  renderContexts();
+  showScreen(screenContext);
+});
+
+renderContexts();
 </script>
 </body>
 </html>
